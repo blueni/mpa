@@ -1,5 +1,5 @@
 {
-		"name": "mpa",
+		"name": "mpa-cli",
 		"version": "1.0.0",
 		"description": "",
 		"main": "index.js",
@@ -33,6 +33,10 @@
 				"webpack-dev-server": "^3.1.3",
 				"webpack-hot-middleware": "^2.21.2",
 				"webpack-merge": "^4.1.4"
+		},
+		"repository": {
+		  "type": "git",
+		  "url": "git+https://github.com/blueni/mpa.git"
 		},
 		"author": "blueni",
 		"license": "MIT"
