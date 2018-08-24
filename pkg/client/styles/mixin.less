@@ -1,0 +1,163 @@
+// display
+.block(){
+    display: block;
+}
+
+.inline(){
+    display: inline;
+}
+
+.inline-block(){
+    display: inline-block;
+}
+
+// font-weight
+.bold(){
+    font-weight: bold;
+}
+
+.lighter(){
+    font-weight: lighter;
+}
+
+// font-style
+.italic(){
+    font-style: italic;
+}
+
+.normal(){
+    font-style: normal;
+}
+
+// text-align
+.t-center(){
+    text-align: center;
+}
+
+.t-left(){
+    text-align: left;
+}
+
+.t-right(){
+    text-align: right;
+}
+
+// vertical-align
+.t-top(){
+    vertical-align: top;
+}
+
+.t-middle(){
+    vertical-align: middle;
+}
+
+.t-bottom(){
+    vertical-align: bottom;
+}
+
+// position
+.relative(){
+    position: relative;
+}
+
+.absolute(){
+    position: absolute;
+}
+
+.fixed(){
+    position: fixed;
+}
+
+.left(){
+    position: left;
+}
+
+.right(){
+    position: right;
+}
+
+.top(){
+    position: top;
+}
+
+.bottom(){
+    position: bottom;
+}
+
+// text-decoration
+.underline(){
+    text-decoration: underline;
+}
+
+// border-style
+.solid(){
+    border-style: solid;
+}
+
+.dashed(){
+    border-style: dashed;
+}
+
+// float
+.float-l(){
+    float: left;
+}
+
+.float-r(){
+    float: right;
+}
+
+// mixins
+.block-center(){
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.size(@x, @y: @x){
+    width: @x;
+    height: @y;
+}
+
+.round(@x){
+    .size(@x);
+    border-radius: 50%;
+}
+
+.bg-position(@x, @y: @x){
+    background-position: @x @y;
+}
+
+.ellipsis(){
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.clearfix(){
+    zoom: 1;
+
+    &:after{
+        display: block;
+        height: 0;
+        content: ' ';
+        clear: both;
+    }
+}
+
+// css3-mixin
+.transform(){
+    transform: @arguments;
+    -ms-transform: @arguments;
+    -webkit-transform: @arguments;
+}
+.transform-origin(){
+    transform-origin: @arguments;
+    -ms-transform-origin: @arguments;
+    -webkit-transform-origin: @arguments;
+}
+
+.transition(){
+    transition: @arguments;
+    -ms-transition: @arguments;
+    -webkit-transition: @arguments;
+}

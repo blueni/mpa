@@ -1,0 +1,9 @@
+.vscode
+npm-*.*
+node_modules
+
+build/build-history.json
+fjpublish.config.js
+
+publish.history.json
+publish-project.tar
