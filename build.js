@@ -33,8 +33,10 @@ module.exports = function build(){
                 })
                 
                 webpackProcess.on('exit', () => {
-                    console.log(`webpack编译${projectName.split('__')}完成~`)
-                    promiseCompleted()
+                    if(isProd){
+                        console.log(`webpack编译${projectName.split('__')}完成~`)
+                        promiseCompleted()
+                    }
                 })
             },
             stop(file){
@@ -63,7 +65,8 @@ module.exports = function build(){
         // add, addDir, change, unlink, unlinkDir, ready, raw, error
         chokidar.watch([
                 ...['webpack.config.js', 'build/'].map(v => path.join(__dirname, v)),
-                ...watchForRestartWebpack.mpa(v => path.join(cwd, v)),
+                ...watchForRestartWebpack.map(v => path.join(cwd, v)),
+                process.env.MPA_CONFIG,
             ])
             .on('unlink', webpackTask)
             .on('change', webpackTask)

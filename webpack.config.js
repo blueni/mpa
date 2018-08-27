@@ -168,7 +168,15 @@ module.exports = merge({
         new MiniCssExtractPlugin({
             filename: `${project}/css/[name]-[hash:8].css`,
         })
-    ] : []),
+    ] : [
+        new CopyWebpackPlugin([
+            {
+                from: path.resolve(cwd, 'static'),
+                to: path.resolve('./dist/static'),
+                ignore: ['.*']
+            }
+        ]),
+    ]),
 
     optimization: {
         splitChunks,
