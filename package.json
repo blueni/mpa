@@ -9,7 +9,7 @@
 		"bin": {
 		  "mpa": "./bin/cli.js"
 		},
-		"devDependencies": {
+		"dependencies": {
 				"chokidar": "^2.0.3",
 				"clean-css": "^4.1.11",
 				"copy": "^0.3.2",

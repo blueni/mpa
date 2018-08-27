@@ -6,6 +6,7 @@ const config = require(process.env.MPA_CONFIG)
 
 const env = process.env.NODE_ENV
 const isProd = env === 'production'
+const cwd = process.cwd()
 
 module.exports = function build(){
 
@@ -28,7 +29,7 @@ module.exports = function build(){
                 webpackProcess = spawn('node', args, {
                     env: process.env,
                     stdio: [0, 1, 2],
-                    cwd: process.cwd(),
+                    cwd,
                 })
                 
                 webpackProcess.on('exit', () => {
@@ -60,9 +61,12 @@ module.exports = function build(){
     if(!isProd){
         let { watchForRestartWebpack } = config
         // add, addDir, change, unlink, unlinkDir, ready, raw, error
-        chokidar.watch([['webpack.config.js', 'build/'].map(v => path.join(__dirname, v)), ...watchForRestartWebpack])
-                .on('unlink', webpackTask)
-                .on('change', webpackTask)
+        chokidar.watch([
+                ...['webpack.config.js', 'build/'].map(v => path.join(__dirname, v)),
+                ...watchForRestartWebpack.mpa(v => path.join(cwd, v)),
+            ])
+            .on('unlink', webpackTask)
+            .on('change', webpackTask)
     }
     
     return promise

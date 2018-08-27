@@ -5,6 +5,7 @@
 初始化MPA项目指引
 * `npm intall mpa-cli -g`
 * `mkdir [your project]`
+* `cd [your project]`
 * `mpa init`
 
 ## commands
