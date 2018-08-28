@@ -1,13 +1,13 @@
 {
 		"name": "mpa-cli",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"description": "",
 		"main": "index.js",
 		"scripts": {
 				"test": "echo \"Error: no test specified\" && exit 1"
 		},
 		"bin": {
-		  "mpa": "./bin/cli.js"
+				"mpa": "./bin/cli.js"
 		},
 		"dependencies": {
 				"chokidar": "^2.0.3",
@@ -35,8 +35,8 @@
 				"webpack-merge": "^4.1.4"
 		},
 		"repository": {
-		  "type": "git",
-		  "url": "git+https://github.com/blueni/mpa.git"
+				"type": "git",
+				"url": "git+https://github.com/blueni/mpa.git"
 		},
 		"author": "blueni",
 		"license": "MIT"
