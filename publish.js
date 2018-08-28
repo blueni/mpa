@@ -8,6 +8,7 @@ const del = require('del')
 const fastGlob = require('fast-glob')
 // const OSS = require('ali-oss')
 const config = require(process.env.MPA_CONFIG)
+const staticPath = config.staticPath || 'static'
 const cwd = process.cwd()
 
 let isCdn = !!process.env.IS_CDN
@@ -142,7 +143,7 @@ function limitHistorySize(size = limitSize){
 }
 
 async function compareProject(upload = noop){
-    let globs = [...projectList.map(v => `dist/${v}`), 'static']
+    let globs = [...projectList.map(v => `dist/${v}`), staticPath]
     let isSame = true, glob
     for(let i=0;i<globs.length;i++){
         glob = globs[i]
