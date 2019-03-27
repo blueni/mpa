@@ -1,6 +1,7 @@
 const os = require('os')
-const build = require('./build.js')
 const inquirer = require('inquirer')
+const copy = require('copy')
+const build = require('./build.js')
 const { entryes } = require(process.env.MPA_CONFIG)
 const isProd = process.env.NODE_ENV === 'production'
 let [, , task] = process.argv
@@ -95,6 +96,13 @@ async function runProject(){
     
     if(task === 'publish'){
         require('./publish.js')(projectName.split('__'))
+    }else{
+        // 复制static文件夹到dist目录下
+        copy('static/**/*.*', 'dist/static', (err, files) => {
+            if(!err){
+                console.log('复制static目录成功')
+            }
+        })
     }
-    
+
 }

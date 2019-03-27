@@ -8,14 +8,13 @@ const env = process.env.NODE_ENV
 const isProd = env === 'production'
 const cwd = process.cwd()
 
-module.exports = function build(){
+module.exports = function build(projectName = process.env.PROJECT){
 
     let promiseCompleted
     const promise = new Promise(resolve => {
         promiseCompleted = resolve
     })
     
-    const projectName = process.env.PROJECT
     let webpackProcess
     
     function webpackTask(file){
@@ -28,7 +27,7 @@ module.exports = function build(){
                 let args = [webpackFile, '--config', path.join(__dirname, 'webpack.config.js')]
                 // args = [path.join(__dirname, 'run-webpack.js')]
                 webpackProcess = spawn('node', args, {
-                    env: process.env,
+                    env: Object.assign({}, process.env, {PROJECT: projectName}),
                     stdio: [0, 1, 2],
                     cwd,
                 })
