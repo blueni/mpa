@@ -1,7 +1,6 @@
 const path = require('path')
-const fs = require('fs')
 const config = require(process.env.MPA_CONFIG)
-
+config.languages = config.languages || ['CN']
 const env = process.env.NODE_ENV
 const isProd = env === 'production'
 const publicPath = !!process.env.IS_CDN ? config.publicPath : '/'
@@ -56,7 +55,7 @@ function getEntryes(cfg){
             common = name + '-common'
             commonChunks[common] = [common]
         }
-        let file, pluginOption
+        let file
 
         for(let entry of items){
             let jsEntry = entry.jsEntry
@@ -72,12 +71,16 @@ function getEntryes(cfg){
                 obj[file] = getRelativePath(jsEntry, entry.jsBase)
 
                 if(entry.template){
-                    pluginOption = setHtmlPlugin(file, entry, project)
+                    config.languages.forEach(lang => {
+                        setHtmlPlugin(file, entry, project, lang)
+                    })                    
                 }else{
                     vendors.push(file)
                 }
             }else if(entry.template){
-                setHtmlPlugin(null, entry, project)
+                config.languages.forEach(lang => {
+                    setHtmlPlugin(null, entry, project, lang)
+                })
             }
         }
     })
@@ -113,11 +116,12 @@ function setCacheGroupCss(file){
     }
 }
 
-function setHtmlPlugin(file, entry, project){
+function setHtmlPlugin(file, entry, project, lang){
     setCacheGroupCss(file)
 
     let {name, htmlBase, noLayout} = entry
     let template = entry.template
+    let distPath = lang === 'CN' ? '' : lang.toLowerCase() + '/'
 
     if(!entry.noHtmlBasepath){
         template = getRelativePath(entry.template, htmlBase)
@@ -126,11 +130,14 @@ function setHtmlPlugin(file, entry, project){
     let chunks = file ? [file] : []
     let options = {
         template,
-        filename: `${project.name}/${entry.filename || getFilename(template) + '.html'}`,
+        filename: `${distPath}${project.name}/${entry.filename || getFilename(template) + '.html'}`,
         chunks,
         inject: true,
         data: entry.data || {},
         layoutFile: entry.layoutFile,
+        layoutLang: entry.layoutLang,
+        i18n: entry.i18n ? path.join(process.cwd(), 'client/', entry.i18nBase || '', entry.i18n) : '',
+        lang,
         noLayout: !!entry.noLayout,
         projectName: project.name,
         noCommmon: !!entry.noCommmon,

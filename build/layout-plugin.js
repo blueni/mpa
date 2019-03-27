@@ -2,7 +2,9 @@ const path = require('path')
 const fs = require('fs')
 const ejs = require('ejs')
 const config = require(process.env.MPA_CONFIG)
+
 const cwd = process.cwd()
+let cache = {}
 
 if(config.delimiter){
     ejs.delimiter = config.delimiter || '?'
@@ -31,23 +33,61 @@ module.exports = class LayoutPlugin {
             compilation.hooks.htmlWebpackPluginBeforeHtmlProcessing.tapAsync(
                 'LayoutPlugin',
                 (data, cb) => {
+                    // if(cache[data.html]){
+                    //     data.html = cache[data.html]
+                    //     cb(null, data)
+                    //     return
+                    // }
                     let outputName = data.outputName
                     let pluginData = data.plugin.options
                     let hash = compilation.hash.substr(0, 8)
-                    let renderData = {
-                        layout: data.html,
-                        title: pluginData.title,
-                        data: pluginData.data,
-                        outputName,
+                    let lang = null
+                    let parsedHtml
+                    let language = pluginData.lang.toLowerCase()
+                    if(pluginData.i18n){
+                        lang = require(pluginData.i18n)
+                        if(!lang[pluginData.lang]){
+                            lang = lang.EN
+                            language = 'en'
+                        }else{
+                            lang = lang[pluginData.lang]
+                        }
+                        delete require.cache[require.resolve(pluginData.i18n)]
                     }
+                    let title = pluginData.title
+                    title = title[pluginData.lang] ? title[pluginData.lang] :
+                            title.EN ? title.EN : title
+                    
+                    let renderData = {
+                        title,
+                        data: pluginData.data,
+                        outputName,                        
+                        lang,
+                        langPath: pluginData.lang === 'CN' ? '' : '/' + pluginData.lang.toLowerCase(),
+                        language,
+                    }
+
                     if(pluginData.noLayout){
                         if(isProd){
-                            data.html = convertSrc(data.html, hash)
+                            parsedHtml = convertSrc(ejs.render(data.html, renderData), hash)
+                            cache[data.html] = parsedHtml
+                            data.html = parsedHtml
                         }
                         return cb(null, data)
-                    }
+                    }   
+
+                    let layout = ejs.render(data.html, renderData)
+                    renderData.layout = layout
                     
-                    let layoutFile = path.join(cwd, 'client/', pluginData.layoutFile)
+                    let  layoutFile = path.join(cwd, 'client/', pluginData.layoutFile)
+                    let layoutLang = {}
+                    let layoutLangFile
+                    if(pluginData.layoutLang){
+                        layoutLangFile = path.join(cwd, 'client/', pluginData.layoutLang)
+                        layoutLang = require(layoutLangFile)
+                        layoutLang = layoutLang[pluginData.lang] || layoutLang.EN
+                    }
+                    renderData.layoutLang = layoutLang
                     ejs.renderFile(layoutFile, renderData, (err, html) => {
                         if(err){
                             console.error(err)
@@ -56,6 +96,7 @@ module.exports = class LayoutPlugin {
                             html = convertSrc(html, hash)
                         }
                         if(data.outputName.endsWith(outputName)){
+                            cache[data.html] = html
                             data.html = html
                         }
                         cb(null, data)

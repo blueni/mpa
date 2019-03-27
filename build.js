@@ -26,6 +26,7 @@ module.exports = function build(){
                 let webpackFile = isProd ? 'node_modules/webpack/bin/webpack.js' : 'node_modules/webpack-dev-server/bin/webpack-dev-server.js'
                 webpackFile = path.join(__dirname, webpackFile)
                 let args = [webpackFile, '--config', path.join(__dirname, 'webpack.config.js')]
+                // args = [path.join(__dirname, 'run-webpack.js')]
                 webpackProcess = spawn('node', args, {
                     env: process.env,
                     stdio: [0, 1, 2],
@@ -54,7 +55,12 @@ module.exports = function build(){
     
     if(isProd){
         // 删除之前版本文件...
-        del(`./dist/${projectName}`).then(webpackTask)
+        Promise.all(
+            (config.languages || []).map(lang => {
+                lang = lang === 'CN' ? '' : lang.toLowerCase() + '/'
+                return del(`./dist/${lang}${projectName}`)
+            })
+        ).then(() => webpackTask())
     }else{
         webpackTask()
     }

@@ -12,7 +12,7 @@ switch (cmd) {
     case 'build':
     case 'publish':
         process.env.NODE_ENV = 'production'
-        start()
+        start(...rest)
         break
 
     default:

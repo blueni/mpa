@@ -1,7 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { VueLoaderPlugin } = require(`${process.cwd()}/node_modules/vue-loader`)
+const { VueLoaderPlugin } = require(`vue-loader`)
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
@@ -13,6 +13,7 @@ const config = require(process.env.MPA_CONFIG)
 const { entry, htmlPlugins, splitChunks } = require('./build/parse-config')
 
 const cwd = process.cwd()
+const modulesDir = path.resolve(__dirname, 'node_modules')
 const webpackConfig = config.webpackConfig || {}
 let clientPath = webpackConfig.context || path.join(cwd, 'client')
 const resolve = (...pathes) => path.resolve(clientPath, ...pathes)
@@ -22,7 +23,7 @@ const isProd = env === 'production'
 const project = process.env.PROJECT
 const isCdn = !!process.env.IS_CDN
 
-const styleLoader = isProd ? MiniCssExtractPlugin.loader : 'style-loader'
+const styleLoader = isProd ? MiniCssExtractPlugin.loader : path.resolve(modulesDir, 'style-loader')
 const publicPath = isCdn ? config.publicPath + '/' : `/`
 
 module.exports = merge({
@@ -51,7 +52,7 @@ module.exports = merge({
 
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-                loader: 'url-loader',
+                loader: path.resolve(modulesDir, 'url-loader'),
                 options: {
                     limit: 1024,
                     name: `${project}/images/[name].[hash:7].[ext]`,
@@ -60,7 +61,7 @@ module.exports = merge({
 
             {
               test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-              loader: 'url-loader',
+              loader: path.resolve(modulesDir, 'url-loader'),
               options: {
                 limit: 1024,
                 name: `${project}/medias/[name].[hash:7].[ext]`,
@@ -69,7 +70,7 @@ module.exports = merge({
 
             {
               test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-              loader: 'url-loader',
+              loader: path.resolve(modulesDir, 'url-loader'),
               options: {
                 limit: 1024,
                 name: `${project}/images/[name].[hash:7].[ext]`,
@@ -79,47 +80,45 @@ module.exports = merge({
             {
                 // vue 文件编译
                 test: /\.vue$/,
-                loaders: ['vue-loader'],
+                loaders: [path.resolve(modulesDir, 'vue-loader')],
             },
 
             {
                 // js 文件编译
                 test: /\.js$/,
-                loader: 'babel-loader',
-                options: {
-                    presets: ['env'],
-                    plugins: [
-                        ['transform-runtime', {
-                            'helpers': false,
-                            'polyfill': false,
-                            'regenerator': true,
-                            'moduleName': 'babel-runtime'
-                        }],
-                        ['transform-object-assign', {
-                            polyfill: true
-                        }],
-                    ],
-                }
+                exclude: path.resolve(__dirname, 'node_modules'),
+                use: [
+                    {   
+                        loader: path.resolve(modulesDir, 'babel-loader') + '?cacheDirectory',
+                        options: {
+                            presets: [path.resolve(modulesDir, '@babel/preset-env')],
+                            plugins: [
+                                [path.resolve(modulesDir, '@babel/plugin-transform-runtime')],
+                                [path.resolve(modulesDir, '@babel/plugin-transform-object-assign')],
+                            ],
+                        }
+                    },
+                ],
             },
 
             {
                 // css 文件编译
                 test: /\.css$/,
-                loaders: [styleLoader, 'css-loader'],
+                loaders: [styleLoader, path.resolve(modulesDir, 'css-loader')],
             },
 
             {
                 // less 文件编译
                 test: /\.less$/,
                 exclude: path.resolve(cwd, 'node_modules'),
-                loaders: [styleLoader, 'css-loader', 'less-loader'],
+                loaders: [styleLoader, path.resolve(modulesDir, 'css-loader'), path.resolve(modulesDir, 'less-loader')],
             },
 
             {
                 // sass 文件编译
                 test: /\.sc|ass$/,
                 exclude: path.resolve(cwd, 'node_modules'),
-                loaders: [styleLoader, 'css-loader', 'sass-loader'],
+                loaders: [styleLoader, path.resolve(modulesDir, 'css-loader'), path.resolve(modulesDir, 'sass-loader')],
             },
 
         ],
@@ -172,7 +171,7 @@ module.exports = merge({
         new CopyWebpackPlugin([
             {
                 from: path.resolve(cwd, 'static'),
-                to: path.resolve('./dist/static'),
+                to: path.resolve(cwd, './dist/static'),
                 ignore: ['.*']
             }
         ]),
