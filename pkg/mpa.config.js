@@ -1,3 +1,5 @@
+const ssh = require('./publish.config')
+
 module.exports = {
     staticPath: 'static',                         // 项目静态文件夹目录
     publicPath: '/',                              // 静态文件基本路径，使用CDN时该配置才会生效
@@ -9,14 +11,7 @@ module.exports = {
         'client/templates/'
     ],
 
-    ssh: {                                        // 发布到远程服务器
-      host: '192.168.1.182',
-      port: 22,
-      userName: 'root',
-      password: '123456',
-      localPath: `dist`,
-      remotePath: `/data/vhosts/mpa-test`,
-    },
+    ssh,                                          // 发布到远程服务器
     
     webpackConfig: {                              // webpack配置
     },

@@ -45,6 +45,8 @@ const noop = () => void 0
 module.exports = async function start(projects = []){
     projectList = projects
     createHashObject()
+    console.log('创建远程文件目录')
+    await runShell(null, [`mkdir -p ${remotePath}/publish-history`,])
     console.log('拉取历史上传结果...')
     await getHistoryHash()
     await getLastHistoryHash()
@@ -93,7 +95,7 @@ function downloadFile(file, dir = './'){
 async function getHistoryHash(){
     await downloadFile(publishHistoryFile, './publish-history')
     try{
-        publishHistory = Object.assign(publishHistory, require(`./${publishHistoryFile}`))
+        publishHistory = Object.assign(publishHistory, require(path.join(process.cwd(), `./${publishHistoryFile}`)))
     }catch(err){}
     if(!Array.isArray(publishHistory.history)){
         publishHistory.history = []
@@ -109,7 +111,7 @@ async function getLastHistoryHash(){
         let file = `publish-history/publish-${last}.json`
         lastInfo = publishHistory[last].projectList
         await downloadFile(file, './publish-history')
-        historyHash = require(`./${file}`)
+        historyHash = require(path.join(process.cwd(),`./${file}`))
         try{
             for(let key in historyHash){
                 if(!lastPublishHash[key]){
@@ -215,9 +217,8 @@ function uploadFile(file, path = remotePath){
     })
 }
 
-function runShell(expiredHashes){
-    let commands = [
-        `mkdir -p ${remotePath}/publish-history`,
+function runShell(expiredHashes, cmds){
+    let commands = cmds || [
         `cd ${remotePath}`,
         ...zipEntries.map(v => v.replace(/[\\\/]*dist[\\\/]*/g, ''))
                     .filter(v => projectList.includes(v))
@@ -227,11 +228,17 @@ function runShell(expiredHashes){
         ...expiredHashes.map(v => `rm -f publish-history/publish-${v}.json`),
     ]
     return new Promise((resolve) => {
+        let _console = console.log
+        console.log = () => void 0
         new SSH2Shell({
             server,
             commands,
-            onEnd: resolve,
+            onEnd: () => {
+                console.log = _console
+                resolve()
+            },
             onError: console.error,
+            closedMessage: ' ',
         }).connect()
     })
 }

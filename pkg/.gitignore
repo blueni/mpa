@@ -1,4 +1,5 @@
 .vscode
 npm-*.*
+publish.config.js
 node_modules
 dist
